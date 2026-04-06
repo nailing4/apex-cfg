@@ -114,7 +114,46 @@ export function downloadCfg(config: VideoConfig) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'videoconfig.txt'; // Apex usually reads from videoconfig.txt in local appdata
+  link.download = 'videoconfig.txt';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+export function downloadInstallScript() {
+  const script = `@echo off
+set "TARGET_DIR=%LOCALAPPDATA%\\Respawn\\Apex\\local"
+set "FILE_NAME=videoconfig.txt"
+
+echo [APEX 战术配置管理器] 正在部署...
+
+if not exist "%TARGET_DIR%" (
+    echo [错误] 未找到 Apex 配置目录: %TARGET_DIR%
+    pause
+    exit /b
+)
+
+if not exist "%FILE_NAME%" (
+    echo [错误] 请先下载 %FILE_NAME% 并将其放在此脚本所在的文件夹中。
+    pause
+    exit /b
+)
+
+echo 正在移动文件到: %TARGET_DIR%
+copy /y "%FILE_NAME%" "%TARGET_DIR%\\%FILE_NAME%"
+
+echo 正在设置文件为只读...
+attrib +r "%TARGET_DIR%\\%FILE_NAME%"
+
+echo [成功] 配置已部署并设置为只读！
+pause
+`;
+  const blob = new Blob([script], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'install_apex_cfg.bat';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

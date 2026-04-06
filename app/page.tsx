@@ -14,10 +14,13 @@ import {
   Maximize,
   Settings2,
   ChevronRight,
-  Info
+  Info,
+  Copy,
+  ExternalLink,
+  FileCode
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { VideoConfig, defaultConfig, generateCfgString, downloadCfg } from '@/lib/cfg-utils';
+import { VideoConfig, defaultConfig, generateCfgString, downloadCfg, downloadInstallScript } from '@/lib/cfg-utils';
 
 export default function ApexCfgManager() {
   const [config, setConfig] = useState<VideoConfig>(defaultConfig);
@@ -34,6 +37,7 @@ export default function ApexCfgManager() {
     { id: 'shadow', label: '阴影与光照', icon: Sun },
     { id: 'model', label: '模型与特效', icon: Layers },
     { id: 'adaptive', label: '自适应设置', icon: Zap },
+    { id: 'deploy', label: '部署助手', icon: ExternalLink },
   ];
 
   const renderToggle = (label: string, key: keyof VideoConfig, description?: string) => (
@@ -290,13 +294,58 @@ export default function ApexCfgManager() {
                   </>
                 )}
 
-                {activeTab === 'adaptive' && (
-                  <>
-                    {renderToggle("自适应分辨率", "setting.dvs_enable", "帧率目标开关")}
-                    {renderInput("最小帧生成时间", "setting.dvs_gpuframetime_min", "number", "单位: 微秒")}
-                    {renderInput("最大帧生成时间", "setting.dvs_gpuframetime_max", "number", "单位: 微秒")}
-                    {renderInput("渲染距离倍率", "setting.fadeDistScale", "number", "通常保持 1.0")}
-                  </>
+                {activeTab === 'deploy' && (
+                  <div className="col-span-full space-y-6">
+                    <div className="bg-[#1C1B1B] p-6 border-l-4 border-[#DA292A]">
+                      <h3 className="text-lg font-bold text-white mb-2">部署指南</h3>
+                      <p className="text-xs text-[#808080] leading-relaxed">
+                        由于浏览器安全限制，无法直接修改您的本地文件。请按照以下步骤完成部署：
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-[#1C1B1B] p-6 space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-6 h-6 bg-[#DA292A] text-white flex items-center justify-center text-xs font-bold">1</div>
+                          <h4 className="text-sm font-bold text-white">下载配置文件</h4>
+                        </div>
+                        <p className="text-[10px] text-[#808080]">点击左侧或右侧的“导出 .CFG”按钮，下载名为 <code className="text-[#FFB4AC]">videoconfig.txt</code> 的文件。</p>
+                      </div>
+
+                      <div className="bg-[#1C1B1B] p-6 space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-6 h-6 bg-[#DA292A] text-white flex items-center justify-center text-xs font-bold">2</div>
+                          <h4 className="text-sm font-bold text-white">复制目标路径</h4>
+                        </div>
+                        <div className="flex items-center gap-2 bg-[#0e0e0e] p-2 border border-[#353534]">
+                          <code className="text-[9px] text-[#FFB4AC] truncate flex-1">%LOCALAPPDATA%\Respawn\Apex\local</code>
+                          <button 
+                            onClick={() => navigator.clipboard.writeText('%LOCALAPPDATA%\\Respawn\\Apex\\local')}
+                            className="p-1 hover:text-[#DA292A] transition-colors"
+                          >
+                            <Copy className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="bg-[#1C1B1B] p-6 space-y-4 col-span-full">
+                        <div className="flex items-center gap-3">
+                          <div className="w-6 h-6 bg-[#DA292A] text-white flex items-center justify-center text-xs font-bold">3</div>
+                          <h4 className="text-sm font-bold text-white">自动部署 (推荐)</h4>
+                        </div>
+                        <p className="text-[10px] text-[#808080] mb-4">
+                          下载下方的批处理脚本，将其与下载好的 <code className="text-[#FFB4AC]">videoconfig.txt</code> 放在同一个文件夹中并运行。脚本会自动将文件移动到目标位置并设置为“只读”。
+                        </p>
+                        <button 
+                          onClick={() => downloadInstallScript()}
+                          className="px-6 py-3 bg-transparent border border-[#DA292A] text-[#DA292A] text-xs font-bold uppercase tracking-widest hover:bg-[#DA292A] hover:text-white transition-all flex items-center gap-2"
+                        >
+                          <FileCode className="w-4 h-4" />
+                          下载自动部署脚本 (.bat)
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </motion.div>
             </AnimatePresence>
